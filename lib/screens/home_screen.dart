@@ -91,20 +91,16 @@ class HomeScreen extends StatelessWidget {
                         // Logo + title
                         Row(
                           children: [
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [Color(0xFF7C3AED), Color(0xFF06B6D4)],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                                borderRadius: BorderRadius.circular(12),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.asset(
+                                'assets/logo.png',
+                                width: 40,
+                                height: 40,
+                                fit: BoxFit.cover,
                               ),
-                              child: const Icon(Icons.translate,
-                                  color: Colors.white, size: 22),
                             ),
+
                             const SizedBox(width: 12),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,

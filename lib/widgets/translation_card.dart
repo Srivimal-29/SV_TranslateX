@@ -72,9 +72,11 @@ class _TranslationCardState extends State<TranslationCard> {
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: widget.isSource
-                  ? Colors.white.withValues(alpha: 0.08)
+                  ? (provider.isListening
+                      ? const Color(0xFFEF4444)
+                      : Colors.white.withValues(alpha: 0.08))
                   : const Color(0xFF7C3AED).withValues(alpha: 0.3),
-              width: 1,
+              width: provider.isListening && widget.isSource ? 2 : 1,
             ),
           ),
           child: Column(
@@ -83,16 +85,46 @@ class _TranslationCardState extends State<TranslationCard> {
               // Label
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
-                child: Text(
-                  widget.isSource ? 'SOURCE TEXT' : 'TRANSLATION',
-                  style: GoogleFonts.outfit(
-                    color: widget.isSource
-                        ? Colors.white38
-                        : const Color(0xFF7C3AED).withValues(alpha: 0.8),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.2,
-                  ),
+                child: Row(
+                  children: [
+                    Text(
+                      widget.isSource ? 'SOURCE TEXT' : 'TRANSLATION',
+                      style: GoogleFonts.outfit(
+                        color: widget.isSource
+                            ? (provider.isListening
+                                ? const Color(0xFFEF4444)
+                                : Colors.white38)
+                            : const Color(0xFF7C3AED).withValues(alpha: 0.8),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    if (widget.isSource && provider.isListening) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFEF4444),
+                          shape: BoxShape.circle,
+                        ),
+                      ).animate(onPlay: (c) => c.repeat()).scaleXY(
+                            begin: 0.8,
+                            end: 1.4,
+                            duration: 500.ms,
+                          ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Listening...',
+                        style: GoogleFonts.inter(
+                          color: const Color(0xFFEF4444),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
 
@@ -117,9 +149,13 @@ class _TranslationCardState extends State<TranslationCard> {
                           fontFamilyFallback: const ['Noto Sans Tamil', 'Noto Sans', 'sans-serif'],
                         ),
                         decoration: InputDecoration(
-                          hintText: 'Type or paste text here...',
+                          hintText: provider.isListening
+                              ? 'Speak clearly into your microphone...'
+                              : 'Type, paste, or speak text here...',
                           hintStyle: GoogleFonts.inter(
-                            color: Colors.white24,
+                            color: provider.isListening
+                                ? const Color(0xFFEF4444).withValues(alpha: 0.6)
+                                : Colors.white24,
                             fontSize: 16,
                           ).copyWith(
                             fontFamilyFallback: const ['Noto Sans Tamil', 'Noto Sans', 'sans-serif'],
@@ -162,6 +198,23 @@ class _TranslationCardState extends State<TranslationCard> {
                         ),
                       ),
                     const Spacer(),
+
+                    // Voice Input Microphone Button (Source only)
+                    if (widget.isSource)
+                      _ActionButton(
+                        icon: provider.isListening
+                            ? Icons.mic_rounded
+                            : Icons.mic_none_rounded,
+                        tooltip: provider.isListening ? 'Stop Listening' : 'Voice Input',
+                        color: provider.isListening ? const Color(0xFFEF4444) : null,
+                        onTap: () {
+                          context.read<TranslatorProvider>().toggleListening(
+                            onTextUpdated: (t) {
+                              _controller.text = t;
+                            },
+                          );
+                        },
+                      ),
 
                     // Clear (source only)
                     if (widget.isSource && provider.inputText.isNotEmpty)

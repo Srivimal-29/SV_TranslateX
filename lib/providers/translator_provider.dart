@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/language.dart';
 import '../models/translation_history.dart';
 import '../services/translation_service.dart';
+import '../services/stt_service.dart';
 
 enum TranslationStatus { idle, loading, success, error }
 
@@ -15,6 +16,8 @@ class TranslatorProvider extends ChangeNotifier {
   TranslationStatus _status = TranslationStatus.idle;
   List<TranslationHistory> _history = [];
   bool _isSpeaking = false;
+  bool _isListening = false;
+  final SttService _sttService = SttService();
 
   Language get sourceLang => _sourceLang;
   Language get targetLang => _targetLang;
@@ -23,6 +26,7 @@ class TranslatorProvider extends ChangeNotifier {
   TranslationStatus get status => _status;
   List<TranslationHistory> get history => _history;
   bool get isSpeaking => _isSpeaking;
+  bool get isListening => _isListening;
   bool get isLoading => _status == TranslationStatus.loading;
 
   TranslatorProvider() {
@@ -59,6 +63,40 @@ class TranslatorProvider extends ChangeNotifier {
       _outputText = '';
       _status = TranslationStatus.idle;
       notifyListeners();
+    }
+  }
+
+  Future<void> toggleListening({Function(String)? onTextUpdated}) async {
+    if (_isListening) {
+      await _sttService.stopListening();
+      _isListening = false;
+      notifyListeners();
+      if (_inputText.trim().isNotEmpty) {
+        translate();
+      }
+    } else {
+      _isListening = true;
+      notifyListeners();
+
+      final langCode = _sourceLang.code == 'auto' ? 'en_US' : '${_sourceLang.code}_US';
+
+      await _sttService.startListening(
+        languageCode: langCode,
+        onResult: (text) {
+          _inputText = text;
+          if (onTextUpdated != null) {
+            onTextUpdated(text);
+          }
+          notifyListeners();
+        },
+        onDone: () {
+          _isListening = false;
+          notifyListeners();
+          if (_inputText.trim().isNotEmpty) {
+            translate();
+          }
+        },
+      );
     }
   }
 

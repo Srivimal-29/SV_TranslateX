@@ -180,6 +180,36 @@ class HomeScreen extends StatelessWidget {
 
                 const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
+                // Offline Banner
+                if (provider.isOffline)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFDC2626).withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFDC2626).withValues(alpha: 0.5)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.wifi_off_rounded, color: Color(0xFFDC2626), size: 18),
+                            const SizedBox(width: 10),
+                            Text(
+                              'No internet connection',
+                              style: GoogleFonts.inter(
+                                color: const Color(0xFFDC2626),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ).animate().fadeIn(duration: 300.ms),
+                    ),
+                  ),
+
                 // Language selector row
                 SliverToBoxAdapter(
                   child: Padding(

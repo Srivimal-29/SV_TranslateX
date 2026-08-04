@@ -5,6 +5,7 @@ import '../models/language.dart';
 import '../models/translation_history.dart';
 import '../services/translation_service.dart';
 import '../services/stt_service.dart';
+import '../services/connectivity_service.dart';
 
 enum TranslationStatus { idle, loading, success, error }
 
@@ -17,6 +18,7 @@ class TranslatorProvider extends ChangeNotifier {
   List<TranslationHistory> _history = [];
   bool _isSpeaking = false;
   bool _isListening = false;
+  bool _isOffline = false;
   final SttService _sttService = SttService();
 
   Language get sourceLang => _sourceLang;
@@ -28,6 +30,7 @@ class TranslatorProvider extends ChangeNotifier {
   bool get isSpeaking => _isSpeaking;
   bool get isListening => _isListening;
   bool get isLoading => _status == TranslationStatus.loading;
+  bool get isOffline => _isOffline;
 
   TranslatorProvider() {
     _loadHistory();
@@ -103,9 +106,20 @@ class TranslatorProvider extends ChangeNotifier {
   Future<void> translate() async {
     if (_inputText.trim().isEmpty) return;
 
+    final online = await ConnectivityService.isOnline();
+    if (!online) {
+      _isOffline = true;
+      _status = TranslationStatus.error;
+      _outputText = 'No internet connection. Please check your network.';
+      notifyListeners();
+      return;
+    }
+
+    _isOffline = false;
     _status = TranslationStatus.loading;
     _outputText = '';
     notifyListeners();
+
 
     final result = await TranslationService.translate(
       text: _inputText,

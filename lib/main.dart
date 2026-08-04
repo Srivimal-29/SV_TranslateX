@@ -35,10 +35,11 @@ class SvTranslateXApp extends StatelessWidget {
           splashFactory: InkRipple.splashFactory,
           brightness: Brightness.dark,
           colorScheme: const ColorScheme.dark(
-            primary: Color(0xFF7C3AED),
-            secondary: Color(0xFF06B6D4),
+            primary: Color(0xFFDC2626),
+            secondary: Color(0xFFE11D48),
             surface: Color(0xFF0A0E1A),
           ),
+
           scaffoldBackgroundColor: const Color(0xFF0A0E1A),
           textTheme: GoogleFonts.interTextTheme(
             ThemeData.dark().textTheme,

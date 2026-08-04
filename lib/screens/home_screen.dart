@@ -91,15 +91,22 @@ class HomeScreen extends StatelessWidget {
                         // Logo + title
                         Row(
                           children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Image.asset(
-                                'assets/logo.png',
-                                width: 40,
-                                height: 40,
-                                fit: BoxFit.cover,
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: const Color(0xFFDC2626).withValues(alpha: 0.3), width: 1),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(11),
+                                child: Image.asset(
+                                  'assets/logo.png',
+                                  width: 44,
+                                  height: 44,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
+
 
                             const SizedBox(width: 12),
                             Column(
